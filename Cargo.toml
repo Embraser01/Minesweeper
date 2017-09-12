@@ -1,0 +1,6 @@
+[package]
+name = "minesweeper"
+version = "0.1.0"
+authors = ["Marc-Antoine FERNANDES <embraser01@gmail.com>"]
+
+[dependencies]
