@@ -1,17 +1,23 @@
+// Third party lib
+extern crate rand;
+
 use std::error::Error;
 
+mod field;
+
+use field::Field;
+
 pub struct Config {
-    pub difficulty: u32,
+    pub difficulty: usize,
 }
 
 impl Config {
     pub fn new(args: &[String]) -> Result<Config, &'static str> {
-        // ...snip...
         if args.len() < 2 {
             return Err("Not enough arguments");
         }
 
-        let difficulty: u32 = match args[1].parse() {
+        let difficulty: usize = match args[1].parse() {
             Ok(diff) => diff,
             Err(_) => return Err("Not a number!")
         };
@@ -22,5 +28,18 @@ impl Config {
 
 pub fn run(config: Config) -> Result<(), Box<Error>> {
     println!("Hello, world! Difficulty set to {}", config.difficulty);
+
+    let main_field: Field = match Field::new(8, 8, 5) {
+        Ok(field) => field,
+        Err(e) => return Err(From::from(e)),
+    };
+    print!("{:?}", main_field);
+
     Ok(())
+}
+
+#[cfg(test)]
+mod tests {
+    #[test]
+    fn it_works() {}
 }
