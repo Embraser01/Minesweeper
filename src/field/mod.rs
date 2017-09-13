@@ -29,8 +29,7 @@ pub struct Field {
     rows: usize,
     cols: usize,
     mines: Vec<Cell>,
-    nb_mines: usize,
-    remaining_mines: usize
+    nb_mines: usize
 }
 
 impl Field {
@@ -43,8 +42,7 @@ impl Field {
             rows,
             cols,
             mines: vec![Cell { value: 0, visible: false }; rows * cols],
-            nb_mines,
-            remaining_mines: nb_mines
+            nb_mines
         };
 
         // Set the random mines
@@ -69,17 +67,28 @@ impl Field {
         &mut self.mines[self.rows * y + x]
     }
 
-    pub fn select(&mut self, x: usize, y: usize) -> Option<bool> {
+    pub fn on_click(&mut self, x: usize, y: usize) -> bool {
         if !self.is_included(x, y) {
-            return None;
+            return false;
         }
 
-        let is_ready_to_explode = self.mines[self.rows * y + x].visible;
-        if is_ready_to_explode {
-            // Compute new map
-            self.remaining_mines -= 1;
+        let cell = self.at_mutable(x, y);
+
+        if cell.visible {
+            return false;
         }
-        Some(is_ready_to_explode)
+
+        cell.visible = true;
+
+        // If there is no mine near me, show neighbour's cell
+        if cell.value == 0 {
+            self.on_click(x + 1, y);
+            self.on_click(x - 1, y);
+            self.on_click(x, y + 1);
+            self.on_click(x, y - 1);
+        }
+
+        return cell.value == MINE_VALUE;
     }
 
     fn initialize_mines(&mut self) {
