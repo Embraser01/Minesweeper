@@ -29,7 +29,7 @@ impl Config {
 pub fn run(config: Config) -> Result<(), Box<Error>> {
     println!("Hello, world! Difficulty set to {}", config.difficulty);
 
-    let main_field: Field = match Field::new(8, 8, 5) {
+    let main_field: Field = match Field::new(5, 5, 10) {
         Ok(field) => field,
         Err(e) => return Err(From::from(e)),
     };
