@@ -12,5 +12,7 @@ fn main() {
         process::exit(1);
     });
 
-    minesweeper::run(config);
+    if let Err(e) = minesweeper::run(config) {
+        println!("Problem while running the program: {}", e);
+    }
 }
