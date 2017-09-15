@@ -154,6 +154,6 @@ mod tests {
     fn display_all_invisible() {
         let field = init_field(false);
 
-        assert_eq!(format!("{}", field), "Field:\n- - - - \n- - - - \n- - - - \n- - - - ");
+        assert_eq!(format!("{}", field), "Field:\n- - - - - \n- - - - - \n- - - - - \n- - - - - \n- - - - - ");
     }
 }
