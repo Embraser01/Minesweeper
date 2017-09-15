@@ -1,29 +1,15 @@
+// Third party libs
+
 use std::fmt;
 use std::cmp::{min, max};
 use rand::{Rng, thread_rng};
 
+// Intern libs
+mod cell;
+
+use self::cell::Cell;
+
 const MINE_VALUE: usize = 9;
-
-pub struct Cell {
-    pub value: usize,
-    pub visible: bool
-}
-
-impl Clone for Cell {
-    fn clone(&self) -> Self {
-        Cell {
-            value: self.value,
-            visible: self.visible
-        }
-    }
-}
-
-impl fmt::Display for Cell {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "{}", self.value)
-        // TODO Check visible
-    }
-}
 
 pub struct Field {
     rows: usize,
@@ -68,27 +54,28 @@ impl Field {
     }
 
     pub fn on_click(&mut self, x: usize, y: usize) -> bool {
-        if !self.is_included(x, y) {
-            return false;
+        {
+            // Cell check
+            if !self.is_included(x, y) {
+                return false;
+            }
+
+            let cell = self.at_mutable(x, y);
+
+            cell.visible = true;
+
+            if cell.value != 0 {
+                return cell.value == MINE_VALUE;
+            }
         }
 
-        let cell = self.at_mutable(x, y);
+        // Show neighbour's cell because there are not mines around
+        self.on_click(x + 1, y);
+        self.on_click(x - 1, y);
+        self.on_click(x, y + 1);
+        self.on_click(x, y - 1);
 
-        if cell.visible {
-            return false;
-        }
-
-        cell.visible = true;
-
-        // If there is no mine near me, show neighbour's cell
-        if cell.value == 0 {
-            self.on_click(x + 1, y);
-            self.on_click(x - 1, y);
-            self.on_click(x, y + 1);
-            self.on_click(x, y - 1);
-        }
-
-        return cell.value == MINE_VALUE;
+        return false;
     }
 
     fn initialize_mines(&mut self) {
@@ -121,17 +108,52 @@ impl Field {
     }
 }
 
-impl fmt::Debug for Field {
+impl fmt::Display for Field {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        let mut str = "Field:".to_string();
-
+        write!(f, "Field:")?;
         for (i, mine) in self.mines.iter().enumerate() {
             if i % self.rows == 0 {
-                str.push('\n');
+                writeln!(f, "")?;
             }
-            str.push_str(&format!("{} ", mine));
+            write!(f, "{} ", mine)?;
         }
+        write!(f, "")
+    }
+}
 
-        write!(f, "{}", str)
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    fn init_field(visible: bool) -> Field {
+        let c = Cell {
+            visible,
+            value: 0
+        };
+
+        // Mine
+        let m = Cell {
+            visible,
+            value: MINE_VALUE
+        };
+
+        Field {
+            cols: 5,
+            rows: 5,
+            nb_mines: 3,
+            mines: vec![c.clone(), c.clone(), c.clone(), c.clone(), c.clone(),
+                        c.clone(), m.clone(), c.clone(), c.clone(), c.clone(),
+                        c.clone(), c.clone(), m.clone(), c.clone(), c.clone(),
+                        c.clone(), c.clone(), c.clone(), c.clone(), c.clone(),
+                        c.clone(), m.clone(), c.clone(), c.clone(), c.clone(),
+            ]
+        }
+    }
+
+    #[test]
+    fn display_all_invisible() {
+        let field = init_field(false);
+
+        assert_eq!(format!("{}", field), "Field:\n- - - - \n- - - - \n- - - - \n- - - - ");
     }
 }

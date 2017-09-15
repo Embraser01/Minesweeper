@@ -33,7 +33,9 @@ pub fn run(config: Config) -> Result<(), Box<Error>> {
         Ok(field) => field,
         Err(e) => return Err(From::from(e)),
     };
-    print!("{:?}", main_field);
+    print!("{}", main_field);
+
+    //    main_field.on_click(1,1);
 
     Ok(())
 }
